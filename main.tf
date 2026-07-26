@@ -8,7 +8,7 @@ terraform {
 }
 
 provider "kubernetes" {
-  config_path = "~/.kube/config"
+#  config_path = "~/.kube/config"
 }
 
 # 아틀란티스가 새로 생성해 볼 테스트용 네임스페이스
