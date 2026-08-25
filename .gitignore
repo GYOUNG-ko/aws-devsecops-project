@@ -1,0 +1,23 @@
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+
+# Terragrunt
+.terragrunt-cache/
+
+# Terraform lock backups
+*.backup
+
+# Credentials
+.aws/
+*.pem
+*.key
+
+# VS Code
+.vscode/
+
+# Windows
+Thumbs.db
+Desktop.ini
