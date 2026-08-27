@@ -9,14 +9,17 @@ module "eks" {
   vpc_id     = var.vpc_id
   subnet_ids = var.private_subnet_ids
 
+  # Kubernetes API 접근
   # 로컬 PC -> Public Endpoint
-  # Kubernetes API 접근 허용
   endpoint_public_access = true
   # Worker Node -> Private Endpoint
   endpoint_private_access = true
 
   # Cluster 생성자에게 SSO Role Kubernetes 관리자 접근 부여
   enable_cluster_creator_admin_permissions = true
+
+  # IRSA, IAM OIDC Provider
+  enable_irsa = true
 
   addons = {
     # Kubernetes 내부 DNS
@@ -30,7 +33,6 @@ module "eks" {
     }
 
     # eks-pod-identity-agent = {}
-
   }
 
   eks_managed_node_groups = {
@@ -53,4 +55,6 @@ module "eks" {
     Project     = "aws-devsecops-project"
     ManagedBy   = "Terraform"
   }
+
+
 }

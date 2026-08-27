@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: Pod
+
+metadata:
+  name: aws-cli
+  namespace: aws-test
+
+spec:
+  # IRSA IAM Role이 연결된 ServiceAccount 사용
+  serviceAccountName: s3-reader
+
+  containers:
+    - name: aws-cli
+
+      # AWS CLI 테스트용 이미지
+      image: public.ecr.aws/aws-cli/aws-cli:latest
+
+      # IRSA 검증이 끝날 때까지 Pod 유지
+      command:
+        - sleep
+        - "3600"
+
+      # Pod가 사용할 최소/최대 CPU와 Memory 지정
+      resources:
+        requests:
+          cpu: "50m"
+          memory: "64Mi"
+        limits:
+          cpu: "200m"
+          memory: "256Mi"
+
+  restartPolicy: Never

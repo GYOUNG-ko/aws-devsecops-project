@@ -15,3 +15,13 @@ output "cluster_security_group_id" {
   description = "EKS cluster security group ID"
   value       = module.eks.cluster_security_group_id
 }
+
+output "oidc_provider_arn" {
+  description = "EKS OIDC provider ARN"
+  value       = module.eks.oidc_provider_arn
+}
+
+output "cluster_oidc_issuer_url" {
+  description = "EKS OIDC provider URL"
+  value       = module.eks.cluster_oidc_issuer_url
+}
