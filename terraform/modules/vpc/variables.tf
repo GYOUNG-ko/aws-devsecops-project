@@ -17,3 +17,12 @@ variable "public_subnet_cidrs" {
 variable "private_subnet_cidrs" {
   type = list(string)
 }
+
+# 실습 시 NAT Gateway 생성 여부
+# true => NAT Gateway 생성
+# false => NAT Gateway 삭제/미생성
+variable "enable_nat_gateway" {
+  description = "Whether to create NAT Gateway"
+  type        = bool
+  default     = false
+}

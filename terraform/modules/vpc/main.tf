@@ -18,7 +18,7 @@ resource "aws_subnet" "public" {
   map_public_ip_on_launch = true
 
   tags = {
-    Name = "${var.name}-public-${count.index + 1}"
+    Name                     = "${var.name}-public-${count.index + 1}"
     "kubernetes.to/role/elb" = "1"
   }
 }
@@ -31,7 +31,7 @@ resource "aws_subnet" "private" {
   availability_zone = var.availability_zones[count.index]
 
   tags = {
-    Name = "${var.name}-private-${count.index + 1}"
+    Name                              = "${var.name}-private-${count.index + 1}"
     "kubernetes.io/role/internal-elb" = "1"
   }
 }
@@ -60,7 +60,61 @@ resource "aws_route_table" "public" {
 resource "aws_route_table_association" "public" {
   count = length(aws_subnet.public)
 
-  subnet_id = aws_subnet.public[count.index].id
+  subnet_id      = aws_subnet.public[count.index].id
   route_table_id = aws_route_table.public.id
+}
+
+# NAT Gateway용 고정 Public IP
+# NAT 사용 시에만 생성
+resource "aws_eip" "nat" {
+  count = var.enable_nat_gateway ? 1 : 0
+
+  domain = "vpc"
+  tags = {
+    Name = "${var.name}-nat-eip"
+  }
+}
+
+# Private Subnet의 인터넷 Outbound를 위한 NAT Gateway
+# 비용 절감을 위해 실습 시에만 활성화
+resource "aws_nat_gateway" "main" {
+  count = var.enable_nat_gateway ? 1 : 0
+
+  allocation_id = aws_eip.nat[0].id
+  # NAT Gateway는 Internet Gateway에 연결 가능한 Pubilic에 배치
+  subnet_id = aws_subnet.public[0].id
+
+  depends_on = [
+    aws_internet_gateway.main
+  ]
+  tags = {
+    Name = "${var.name}-nat"
+  }
+}
+
+resource "aws_route_table" "private" {
+  vpc_id = aws_vpc.main.id
+
+  tags = {
+    Name = "${var.name}-private-rt"
+  }
+}
+
+resource "aws_route_table_association" "private" {
+  count = length(aws_subnet.private)
+
+  subnet_id      = aws_subnet.private[count.index].id
+  route_table_id = aws_route_table.private.id
+}
+
+# Private Subnet의 인터넷 Outbound 경로
+# NAT가 활성화된 경우에만 생성
+resource "aws_route" "private_nat" {
+  count = var.enable_nat_gateway ? 1 : 0
+
+  route_table_id = aws_route_table.private.id
+
+  destination_cidr_block = "0.0.0.0/0"
+  nat_gateway_id         = aws_nat_gateway.main[0].id
 }
 

@@ -24,4 +24,8 @@ inputs = {
     "10.0.11.0/24",
     "10.0.12.0/24"
   ]
+
+  # 실습 중 NAT 활성화
+  enable_nat_gateway = true
+  #enable_nat_gateway = false
 }
