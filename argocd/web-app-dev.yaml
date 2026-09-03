@@ -9,7 +9,7 @@ spec:
   project: default
 
   source:
-    repoURL: https://github.com/GYOUNG-ko/aws-devsecops-project
+    repoURL: https://github.com/GYOUNG-ko/aws-devsecops-project.git
     targetRevision: main
 
     # 실제 GitHub 저장소 내부의 앱 manifest 경로
