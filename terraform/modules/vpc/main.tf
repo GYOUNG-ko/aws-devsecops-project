@@ -4,9 +4,10 @@ resource "aws_vpc" "main" {
   enable_dns_support   = true
   enable_dns_hostnames = true
 
-  tags = {
-    Name = var.name
-  }
+  tags = merge(var.tags, {
+    Name      = var.name
+    Component = "network"
+  })
 }
 
 resource "aws_subnet" "public" {
@@ -17,10 +18,11 @@ resource "aws_subnet" "public" {
   availability_zone       = var.availability_zones[count.index]
   map_public_ip_on_launch = true
 
-  tags = {
+  tags = merge(var.tags, {
     Name                     = "${var.name}-public-${count.index + 1}"
-    "kubernetes.to/role/elb" = "1"
-  }
+    "kubernetes.io/role/elb" = "1"
+    Component                = "network"
+  })
 }
 
 resource "aws_subnet" "private" {
@@ -30,18 +32,20 @@ resource "aws_subnet" "private" {
   cidr_block        = var.private_subnet_cidrs[count.index]
   availability_zone = var.availability_zones[count.index]
 
-  tags = {
+  tags = merge(var.tags, {
     Name                              = "${var.name}-private-${count.index + 1}"
     "kubernetes.io/role/internal-elb" = "1"
-  }
+    Component                         = "network"
+  })
 }
 
 resource "aws_internet_gateway" "main" {
   vpc_id = aws_vpc.main.id
 
-  tags = {
-    Name = "${var.name}-igw"
-  }
+  tags = merge(var.tags, {
+    Name      = "${var.name}-igw"
+    Component = "network"
+  })
 }
 
 resource "aws_route_table" "public" {
@@ -52,9 +56,10 @@ resource "aws_route_table" "public" {
     gateway_id = aws_internet_gateway.main.id
   }
 
-  tags = {
-    Name = "${var.name}-public-rt"
-  }
+  tags = merge(var.tags, {
+    Name      = "${var.name}-public-rt"
+    Component = "network"
+  })
 }
 
 resource "aws_route_table_association" "public" {
@@ -70,9 +75,10 @@ resource "aws_eip" "nat" {
   count = var.enable_nat_gateway ? 1 : 0
 
   domain = "vpc"
-  tags = {
-    Name = "${var.name}-nat-eip"
-  }
+  tags = merge(var.tags, {
+    Name      = "${var.name}-nat-eip"
+    Component = "network"
+  })
 }
 
 # Private Subnet의 인터넷 Outbound를 위한 NAT Gateway
@@ -87,17 +93,19 @@ resource "aws_nat_gateway" "main" {
   depends_on = [
     aws_internet_gateway.main
   ]
-  tags = {
-    Name = "${var.name}-nat"
-  }
+  tags = merge(var.tags, {
+    Name      = "${var.name}-nat"
+    Component = "network"
+  })
 }
 
 resource "aws_route_table" "private" {
   vpc_id = aws_vpc.main.id
 
-  tags = {
-    Name = "${var.name}-private-rt"
-  }
+  tags = merge(var.tags, {
+    Name      = "${var.name}-private-rt"
+    Component = "network"
+  })
 }
 
 resource "aws_route_table_association" "private" {

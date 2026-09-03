@@ -1,0 +1,16 @@
+# 실습 시작
+aws sso login --profile <PROFILE>
+aws sts get-caller-identity --profile <PROFILE>
+
+$env:AWS_PROFILE = "dev"           
+$env:AWS_REGION  = "ap-northeast-2" 
+
+1. NAT Gateway 
+false -> true 변경
+
+2. EKS 구축
+eks경로 terragrunt apply
+
+# 실습 종료
+
+
