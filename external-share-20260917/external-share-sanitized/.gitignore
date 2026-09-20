@@ -1,0 +1,22 @@
+# Java and Maven build output
+backend/target/
+backend/data/
+
+# Terraform and Terragrunt working directories (lock files remain tracked)
+.terraform/
+.terragrunt-cache/
+
+# Local environment overrides and editor files
+.env
+.env.*
+.DS_Store
+.idea/
+*.iml
+
+# Local validation and sensitive infrastructure artifacts
+__pycache__/
+*.pyc
+*.tfstate
+*.tfstate.*
+*.tfplan
+crash.log

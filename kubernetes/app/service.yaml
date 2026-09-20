@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+
+metadata:
+  name: pms-backend
+
+spec:
+  type: ClusterIP
+
+  selector:
+    app: pms-backend
+
+  ports:
+    - port: 80
+      targetPort: http

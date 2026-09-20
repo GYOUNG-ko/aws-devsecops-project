@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pms-backend
+data:
+  AWS_REGION: ap-northeast-2
+  PMS_S3_BUCKET: pms-patch
+  PMS_S3_PREFIX: patches/
+  SPRING_PROFILES_ACTIVE: postgres
+  PMS_DATABASE_NAME: pms

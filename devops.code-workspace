@@ -1,0 +1,54 @@
+{
+  "folders": [
+    {
+      "name": "Automation",
+      "path": "devops"
+    },
+    {
+      "name": "GitHub Actions",
+      "path": ".github"
+    },
+    {
+      "name": "Argo CD",
+      "path": "argocd"
+    },
+    {
+      "name": "Kubernetes",
+      "path": "kubernetes"
+    },
+    {
+      "name": "Atlantis",
+      "path": "atlantis"
+    },
+    {
+      "name": "Operations",
+      "path": "docs/operations"
+    }
+  ],
+  "settings": {
+    "files.exclude": {
+      "**/.terraform": true,
+      "**/.terragrunt-cache": true,
+      "**/__pycache__": true
+    }
+  },
+  "tasks": {
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "devops: verify",
+        "type": "process",
+        "command": "make",
+        "args": [
+          "check-contracts",
+          "test-devops",
+          "render-gitops"
+        ],
+        "options": {
+          "cwd": "${workspaceFolder:Automation}/.."
+        },
+        "problemMatcher": []
+      }
+    ]
+  }
+}

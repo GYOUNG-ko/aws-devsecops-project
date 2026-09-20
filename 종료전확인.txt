@@ -1,0 +1,85 @@
+# 실습 시작
+aws sso login --profile <PROFILE>
+aws sts get-caller-identity --profile <PROFILE>
+
+$env:AWS_PROFILE = "dev"           
+$env:AWS_REGION  = "ap-northeast-2" 
+$env:AWS_CLUSTER_NAME = "dev-eks"
+
+1. NAT Gateway 
+false -> true 변경
+
+2. EKS 구축
+eks경로 terragrunt apply
+
+3. ArgoCD 생성
+kubectl apply `
+  -n argocd `
+  --server-side `
+  --force-conflicts `
+  -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+
+# kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+
+# PAT 인증
+$env:GITHUB_USER = "GYOUNG-ko"
+# PAT 키 입력
+$env:GITHUB_TOKEN = Read-Host "GitHub Fine-grained PAT"
+
+# Secret 생성
+kubectl create secret generic github-aws-devsecops-repo `
+  -n argocd `
+  --from-literal=type=git `
+  --from-literal=url=https://github.com/GYOUNG-ko/aws-devsecops-project.git `
+  --from-literal=username=$env:GITHUB_USER `
+  --from-literal=password=$env:GITHUB_TOKEN
+
+# ArgoCD repo secret label 추가
+kubectl label secret github-aws-devsecops-repo `
+  -n argocd `
+  argocd.argoproj.io/secret-type=repository
+
+# 확인
+kubectl get secret github-aws-devsecops-repo `
+  -n argocd `
+  --show-labels
+
+# ArgoCD에 적용
+kubectl annotate application web-app-dev `
+  -n argocd `
+  argocd.argoproj.io/refresh=hard `
+  --overwrite
+
+
+
+
+# 실습 종료
+# EKS 확인
+aws eks describe-cluster `
+  --name dev-eks `
+  --region ap-northeast-2 `
+  --profile dev `
+  --query "cluster.status"
+
+# EC2 Worker
+aws ec2 describe-instances `
+  --region ap-northeast-2 `
+  --profile dev `
+  --filters "Name=instance-state-name,Values=pending,running,stopping,stopped" `
+  --query "Reservations[].Instances[].{Id:InstanceId,State:State.Name,Type:InstanceType}"
+
+# Manager Node Group
+aws eks list-nodegroups `
+  --cluster-name dev-eks `
+  --region ap-northeast-2 `
+  --profile dev
+
+# NAT Gateway
+aws ec2 describe-nat-gateways `
+  --region ap-northeast-2 `
+  --profile dev `
+  --filter "Name=state,Values=available,pending,deleting" `
+  --query "NatGateways[].{Id:NatGatewayId,State:State,Subnet:SubnetId}"
+
+# PMS S3 확인
+

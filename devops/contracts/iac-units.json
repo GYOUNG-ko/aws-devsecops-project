@@ -1,0 +1,140 @@
+{
+  "units": [
+    {
+      "path": "live/dev/alb-controller",
+      "module": "terraform/modules/alb-controller",
+      "state_key": "dev/alb-controller/terraform.tfstate",
+      "owner": "infrastructure",
+      "reviewers": [
+        "devops"
+      ],
+      "dependencies": [
+        "live/dev/eks"
+      ]
+    },
+    {
+      "path": "live/dev/atlantis",
+      "module": "terraform/modules/atlantis",
+      "state_key": "dev/atlantis/terraform.tfstate",
+      "owner": "infrastructure",
+      "reviewers": [
+        "devops"
+      ],
+      "dependencies": [
+        "live/dev/vpc"
+      ]
+    },
+    {
+      "path": "live/dev/ecr",
+      "module": "terraform/modules/ecr",
+      "state_key": "dev/ecr/terraform.tfstate",
+      "owner": "infrastructure",
+      "reviewers": [],
+      "dependencies": []
+    },
+    {
+      "path": "live/dev/eks",
+      "module": "terraform/modules/eks",
+      "state_key": "dev/eks/terraform.tfstate",
+      "owner": "infrastructure",
+      "reviewers": [],
+      "dependencies": [
+        "live/dev/vpc"
+      ]
+    },
+    {
+      "path": "live/dev/eks-database-access",
+      "module": "terraform/modules/eks-database-access",
+      "state_key": "dev/eks-database-access/terraform.tfstate",
+      "owner": "infrastructure",
+      "reviewers": [],
+      "dependencies": [
+        "live/dev/eks",
+        "live/dev/rds"
+      ]
+    },
+    {
+      "path": "live/dev/external-secrets",
+      "module": "terraform/modules/external-secrets",
+      "state_key": "dev/external-secrets/terraform.tfstate",
+      "owner": "infrastructure",
+      "reviewers": [
+        "devops"
+      ],
+      "dependencies": [
+        "live/dev/eks",
+        "live/dev/rds"
+      ]
+    },
+    {
+      "path": "live/dev/github-actions-ecr",
+      "module": "terraform/modules/github-actions-ecr",
+      "state_key": "dev/github-actions-ecr/terraform.tfstate",
+      "owner": "infrastructure",
+      "reviewers": [
+        "devops"
+      ],
+      "dependencies": [
+        "live/dev/ecr",
+        "live/shared/github-oidc"
+      ]
+    },
+    {
+      "path": "live/dev/irsa",
+      "module": "terraform/modules/irsa",
+      "state_key": "dev/irsa/terraform.tfstate",
+      "owner": "infrastructure",
+      "reviewers": [],
+      "dependencies": [
+        "live/dev/eks"
+      ]
+    },
+    {
+      "path": "live/dev/pms-irsa",
+      "module": "terraform/modules/pms-irsa",
+      "state_key": "dev/pms-irsa/terraform.tfstate",
+      "owner": "infrastructure",
+      "reviewers": [],
+      "dependencies": [
+        "live/dev/eks",
+        "live/dev/pms-storage"
+      ]
+    },
+    {
+      "path": "live/dev/pms-storage",
+      "module": "terraform/modules/pms-storage",
+      "state_key": "dev/pms-storage/terraform.tfstate",
+      "owner": "infrastructure",
+      "reviewers": [],
+      "dependencies": []
+    },
+    {
+      "path": "live/dev/rds",
+      "module": "terraform/modules/rds-postgres",
+      "state_key": "dev/rds/terraform.tfstate",
+      "owner": "infrastructure",
+      "reviewers": [],
+      "dependencies": [
+        "live/dev/vpc"
+      ]
+    },
+    {
+      "path": "live/dev/vpc",
+      "module": "terraform/modules/vpc",
+      "state_key": "dev/vpc/terraform.tfstate",
+      "owner": "infrastructure",
+      "reviewers": [],
+      "dependencies": []
+    },
+    {
+      "path": "live/shared/github-oidc",
+      "module": "terraform/modules/github-oidc",
+      "state_key": "shared/github-oidc/terraform.tfstate",
+      "owner": "infrastructure",
+      "reviewers": [
+        "devops"
+      ],
+      "dependencies": []
+    }
+  ]
+}

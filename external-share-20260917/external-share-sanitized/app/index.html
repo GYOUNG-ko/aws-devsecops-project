@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>PMS Patch Portal</title>
+
+    <style>
+        :root { color-scheme: light; font-family: Arial, sans-serif; color: #172033; background: #f5f7fb; }
+        body { max-width: 1120px; margin: 48px auto; padding: 0 24px; }
+        h1 { margin-bottom: 8px; }
+        .subtitle { color: #526078; margin-top: 0; }
+        .status { margin: 28px 0 14px; color: #526078; }
+        .status.error { color: #b42318; }
+        table { width: 100%; border-collapse: collapse; background: #fff; }
+        th, td { padding: 14px 12px; border: 1px solid #d9e0ea; text-align: left; vertical-align: middle; }
+        th { background: #eaf0fa; color: #172f5c; }
+        button { border: 1px solid #365fa8; border-radius: 4px; background: #fff; color: #234c92; padding: 7px 11px; cursor: pointer; }
+        button:disabled { cursor: not-allowed; opacity: .45; }
+        #detail-panel { margin-top: 24px; padding: 18px; background: #fff; border: 1px solid #d9e0ea; }
+        #detail-panel[hidden] { display: none; }
+        dl { display: grid; grid-template-columns: 150px 1fr; gap: 10px 16px; margin: 0; }
+        dt { font-weight: bold; color: #526078; }
+        dd { margin: 0; overflow-wrap: anywhere; }
+        @media (max-width: 720px) { body { margin-top: 24px; padding: 0 12px; } table { display: block; overflow-x: auto; white-space: nowrap; } dl { grid-template-columns: 1fr; gap: 4px; } }
+    </style>
+</head>
+
+<body>
+
+    <h1>PMS Patch Portal</h1>
+    <p class="subtitle">승인된 고객을 위한 패치 정보 조회 포털</p>
+
+    <p id="status" class="status" role="status">패치 목록을 불러오는 중입니다.</p>
+
+    <table aria-describedby="status">
+        <thead>
+        <tr>
+            <th>제품</th><th>버전</th><th>파일명</th><th>크기</th><th>등록일</th><th>상태</th><th>작업</th>
+        </tr>
+        </thead>
+        <tbody id="patch-list"></tbody>
+    </table>
+
+    <section id="detail-panel" hidden aria-live="polite">
+        <h2>패치 상세</h2>
+        <dl id="patch-detail"></dl>
+        <p><button type="button" disabled title="다음 단계에서 구현">다운로드 준비 중</button></p>
+    </section>
+
+    <script>
+        const statusElement = document.getElementById('status');
+        const listElement = document.getElementById('patch-list');
+        const detailPanel = document.getElementById('detail-panel');
+        const detailElement = document.getElementById('patch-detail');
+
+        function formatSize(bytes) {
+            if (!Number.isFinite(bytes)) return '-';
+            const units = ['B', 'KB', 'MB', 'GB'];
+            let value = bytes;
+            let unit = 0;
+            while (value >= 1024 && unit < units.length - 1) { value /= 1024; unit += 1; }
+            return `${value.toFixed(unit === 0 ? 0 : 1)} ${units[unit]}`;
+        }
+
+        function formatDate(value) {
+            return value ? new Date(value).toLocaleString('ko-KR') : '-';
+        }
+
+        function setStatus(message, isError = false) {
+            statusElement.textContent = message;
+            statusElement.classList.toggle('error', isError);
+        }
+
+        function addCell(row, value) {
+            const cell = document.createElement('td');
+            cell.textContent = value;
+            row.appendChild(cell);
+        }
+
+        function renderPatches(patches) {
+            listElement.replaceChildren();
+            if (patches.length === 0) {
+                const row = document.createElement('tr');
+                const cell = document.createElement('td');
+                cell.colSpan = 7;
+                cell.textContent = '등록된 패치가 없습니다.';
+                row.appendChild(cell);
+                listElement.appendChild(row);
+                setStatus('등록된 패치가 없습니다.');
+                return;
+            }
+
+            patches.forEach((patch) => {
+                const row = document.createElement('tr');
+                addCell(row, patch.product);
+                addCell(row, patch.version);
+                addCell(row, patch.fileName);
+                addCell(row, formatSize(patch.size));
+                addCell(row, formatDate(patch.lastModified));
+                addCell(row, 'Available');
+                const action = document.createElement('td');
+                const detailButton = document.createElement('button');
+                detailButton.type = 'button';
+                detailButton.textContent = '상세';
+                detailButton.addEventListener('click', () => loadMetadata(patch.key));
+                action.appendChild(detailButton);
+                row.appendChild(action);
+                listElement.appendChild(row);
+            });
+            setStatus(`${patches.length}개의 패치를 조회했습니다.`);
+        }
+
+        function renderMetadata(patch) {
+            const fields = {
+                제품: patch.product,
+                버전: patch.version,
+                파일명: patch.fileName,
+                S3Key: patch.key,
+                파일크기: formatSize(patch.size),
+                등록일: formatDate(patch.lastModified),
+                'SHA-256': patch.checksum || '등록되지 않음'
+            };
+            detailElement.replaceChildren();
+            Object.entries(fields).forEach(([label, value]) => {
+                const term = document.createElement('dt');
+                term.textContent = label;
+                const description = document.createElement('dd');
+                description.textContent = value;
+                detailElement.append(term, description);
+            });
+            detailPanel.hidden = false;
+        }
+
+        async function loadMetadata(key) {
+            setStatus('패치 상세 정보를 불러오는 중입니다.');
+            try {
+                const response = await fetch(`/api/patches/metadata?key=${encodeURIComponent(key)}`);
+                if (!response.ok) throw new Error('metadata request failed');
+                renderMetadata(await response.json());
+                setStatus('패치 상세 정보를 표시했습니다.');
+            } catch (error) {
+                setStatus('패치 상세 정보를 불러오지 못했습니다. 권한 또는 저장소 상태를 확인하세요.', true);
+            }
+        }
+
+        async function loadPatches() {
+            try {
+                const response = await fetch('/api/patches');
+                if (!response.ok) throw new Error('patch list request failed');
+                renderPatches(await response.json());
+            } catch (error) {
+                listElement.replaceChildren();
+                setStatus('패치 목록을 불러오지 못했습니다. Backend와 S3 접근 설정을 확인하세요.', true);
+            }
+        }
+
+        loadPatches();
+    </script>
+
+</body>
+</html>

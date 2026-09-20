@@ -1,0 +1,35 @@
+name: IaC validation
+
+# Run on every PR so this check can be required without path-filter deadlocks.
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: iac-validation-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - name: Install reviewed tools
+        run: |
+          python3 devops/scripts/install_ci_tools.py --destination "${RUNNER_TEMP}/iac-bin"
+          echo "${RUNNER_TEMP}/iac-bin" >> "${GITHUB_PATH}"
+      - name: Check lifecycle and State ownership contracts
+        run: |
+          python3 devops/scripts/check_contracts.py
+          python3 -m unittest discover -s devops/tests -v
+      - name: Validate every infrastructure unit and run mocked policy tests
+        run: python3 devops/scripts/validate_iac.py

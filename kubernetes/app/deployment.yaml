@@ -1,0 +1,105 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pms-backend
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app: pms-backend
+  template:
+    metadata:
+      labels:
+        app: pms-backend
+    spec:
+      serviceAccountName: pms-backend
+      terminationGracePeriodSeconds: 30
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app: pms-backend
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+      containers:
+        - name: pms-backend
+          # The CI pipeline must publish this immutable release tag before sync.
+          image: <AWS_ACCOUNT_ID>.dkr.ecr.ap-northeast-2.amazonaws.com/pms-backend:v0.1.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: pms-backend
+            - secretRef:
+                name: pms-database
+          env:
+            - name: PMS_LOCAL_USER_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: pms-auth
+                  key: user-name
+            - name: PMS_LOCAL_USER_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: pms-auth
+                  key: user-password
+            - name: PMS_LOCAL_ADMIN_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: pms-auth
+                  key: admin-name
+            - name: PMS_LOCAL_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: pms-auth
+                  key: admin-password
+          startupProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: http
+            failureThreshold: 30
+            periodSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: http
+            periodSeconds: 10
+            timeoutSeconds: 2
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: http
+            periodSeconds: 20
+            timeoutSeconds: 2
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "512Mi"
+            limits:
+              cpu: "1"
+              memory: "1Gi"
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+            readOnlyRootFilesystem: true
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir: {}

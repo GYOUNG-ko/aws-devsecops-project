@@ -1,0 +1,49 @@
+spring:
+  application:
+    name: pms-backend
+  datasource:
+    url: ${PMS_DATABASE_URL:jdbc:h2:file:./data/pms;AUTO_SERVER=TRUE}
+    username: ${PMS_DATABASE_USERNAME:sa}
+    password: ${PMS_DATABASE_PASSWORD:}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+  lifecycle:
+    timeout-per-shutdown-phase: 30s
+
+server:
+  shutdown: graceful
+
+pms:
+  s3:
+    bucket: ${PMS_S3_BUCKET:local-validation-bucket}
+    prefix: ${PMS_S3_PREFIX:patches/}
+  aws:
+    region: ${AWS_REGION:ap-northeast-2}
+    endpoint: ${PMS_S3_ENDPOINT:}
+  web:
+    static-location: ${PMS_WEB_STATIC_LOCATION:../app/}
+  auth:
+    # Local accounts must be supplied through the environment; passwords are never committed.
+    user-name: ${PMS_LOCAL_USER_NAME:}
+    user-password: ${PMS_LOCAL_USER_PASSWORD:}
+    admin-name: ${PMS_LOCAL_ADMIN_NAME:}
+    admin-password: ${PMS_LOCAL_ADMIN_PASSWORD:}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: never
+      group:
+        readiness:
+          include: readinessState,db

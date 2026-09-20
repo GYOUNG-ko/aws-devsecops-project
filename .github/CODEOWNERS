@@ -1,0 +1,16 @@
+# Current repository owner fills all roles until actual team handles are supplied.
+# Ownership/review responsibilities: docs/operations/team-workflow.md.
+# CODEOWNERS requires GitHub branch protection to enforce review; this file alone does not.
+* @GYOUNG-ko
+# Infrastructure: account/network/data/identity and module contracts
+/terraform/ @GYOUNG-ko
+/live/ @GYOUNG-ko
+# Development: product behavior, data migrations and application tests
+/app/ @GYOUNG-ko
+/backend/ @GYOUNG-ko
+# DevOps: build/release automation and GitOps reconciliation
+/.github/ @GYOUNG-ko
+/devops/ @GYOUNG-ko
+/argocd/ @GYOUNG-ko
+/kubernetes/ @GYOUNG-ko
+/atlantis/ @GYOUNG-ko

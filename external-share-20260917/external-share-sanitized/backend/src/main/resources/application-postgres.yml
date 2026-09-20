@@ -1,0 +1,12 @@
+spring:
+  datasource:
+    url: <DATABASE_ENDPOINT_REDACTED>/${PMS_DATABASE_NAME:pms}
+    username: ${PMS_DATABASE_USERNAME}
+    password: ${PMS_DATABASE_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: ${PMS_DATABASE_POOL_SIZE:5}
+      minimum-idle: 1
+      connection-timeout: 10000
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect

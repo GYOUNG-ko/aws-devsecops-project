@@ -1,0 +1,38 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+
+metadata:
+  name: web-app-dev
+  namespace: argocd
+
+spec:
+  project: default
+
+  source:
+    # 현재 aws-devsecops-project GitHub Repository
+    repoURL: https://github.com/GYOUNG-ko/aws-devsecops-project.git
+
+    # 현재 사용 중인 Branch
+    targetRevision: main
+
+    # Kubernetes manifest 경로
+    path: kubernetes/app
+
+  destination:
+    # Argo CD가 실행 중인 현재 EKS Cluster
+    server: https://kubernetes.default.svc
+
+    # 앱 배포 Namespace
+    namespace: default
+
+  syncPolicy:
+    automated:
+      # Git에서 삭제된 리소스를 Kubernetes에서도 삭제
+      prune: true
+
+      # 사람이 Kubernetes 리소스를 직접 변경하면 Git 상태로 복구
+      selfHeal: true
+
+    syncOptions:
+      # 대상 Namespace가 없으면 생성
+      - CreateNamespace=true

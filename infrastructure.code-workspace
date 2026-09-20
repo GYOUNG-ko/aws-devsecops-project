@@ -1,0 +1,44 @@
+{
+  "folders": [
+    {
+      "name": "Modules",
+      "path": "terraform"
+    },
+    {
+      "name": "Environments",
+      "path": "live"
+    },
+    {
+      "name": "Architecture",
+      "path": "docs/architecture"
+    },
+    {
+      "name": "Operations",
+      "path": "docs/operations"
+    }
+  ],
+  "settings": {
+    "files.exclude": {
+      "**/.terraform": true,
+      "**/.terragrunt-cache": true,
+      "**/__pycache__": true
+    }
+  },
+  "tasks": {
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "infrastructure: verify",
+        "type": "process",
+        "command": "python3",
+        "args": [
+          "devops/scripts/validate_iac.py"
+        ],
+        "options": {
+          "cwd": "${workspaceFolder:Modules}/.."
+        },
+        "problemMatcher": []
+      }
+    ]
+  }
+}

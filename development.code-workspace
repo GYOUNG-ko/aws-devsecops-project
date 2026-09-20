@@ -1,0 +1,42 @@
+{
+  "folders": [
+    {
+      "name": "Backend",
+      "path": "backend"
+    },
+    {
+      "name": "Frontend",
+      "path": "app"
+    },
+    {
+      "name": "Operations",
+      "path": "docs/operations"
+    }
+  ],
+  "settings": {
+    "files.exclude": {
+      "**/.terraform": true,
+      "**/.terragrunt-cache": true,
+      "**/__pycache__": true
+    }
+  },
+  "tasks": {
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "development: verify",
+        "type": "process",
+        "command": "mvn",
+        "args": [
+          "--batch-mode",
+          "--no-transfer-progress",
+          "verify"
+        ],
+        "options": {
+          "cwd": "${workspaceFolder:Backend}"
+        },
+        "problemMatcher": []
+      }
+    ]
+  }
+}
