@@ -122,3 +122,22 @@ The nginx results below are historical records, not re-verified in this session.
 - [EKS Application Migration](docs/architecture/eks-application-migration.md)
 - [Argo CD GitOps](docs/architecture/argocd-gitops.md)
 - [INC-001: Argo CD Bootstrap Failures](docs/incidents/INC-001-argocd-bootstrap-failures.md)
+
+### Rendering account-specific manifests
+
+Public manifests do not commit the AWS account ID. Render bootstrap manifests with the active AWS identity before applying them:
+
+```bash
+python3 scripts/render_aws_account_template.py argocd/aws-load-balancer-controller.yaml | kubectl apply -f -
+python3 scripts/render_aws_account_template.py argocd/external-secrets.yaml | kubectl apply -f -
+python3 scripts/render_aws_account_template.py kubernetes/irsa-test/serviceaccount.yaml | kubectl apply -f -
+```
+
+Before running Terragrunt against AWS, export the active account once in your shell:
+
+```bash
+export AWS_PROFILE=dev
+export AWS_ACCOUNT_ID="$(aws sts get-caller-identity --profile "$AWS_PROFILE" --query Account --output text)"
+```
+
+`live/account.hcl` derives the backend bucket from that value. Set `TF_STATE_BUCKET` only when the deployed backend bucket does not use the repository naming convention. The committed fallback account is an invalid sentinel so the existing state ownership preflight fails closed if `AWS_ACCOUNT_ID` is omitted.

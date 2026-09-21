@@ -29,6 +29,6 @@ inputs = {
   service_account_name = "s3-reader"
 
   # IRSA 권한 테스트용 S3 Bucket 이름
-  test_bucket_name = "irsa-test-123456789012-ap-northeast-2-an"
+  test_bucket_name = "irsa-test-${include.root.locals.account.locals.account_id}-${include.root.locals.aws_region}-an"
 
 }

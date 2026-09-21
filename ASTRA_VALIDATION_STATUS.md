@@ -211,7 +211,7 @@ Failure Condition: 구문/스키마 오류, dependency/provider 미준비, 인�
 - Validation Method: generated 구성 재조합, backend=false/lockfile=readonly init, validate; 다른 module 회귀 검증, HCL 및 fmt 검사.
 - Re-validation Result: 진행 중.
 
-AWS identity: 사용자 확인한 dev profile / <SSO_USER> SSO로 코드의 계정 123456789012 일치 확인. 기본 profile 미설정은 인증 실패로 취급하지 않는다.
+AWS identity: 사용자 확인한 dev profile / <SSO_USER> SSO로 코드의 계정 <AWS_ACCOUNT_ID> 일치 확인. 기본 profile 미설정은 인증 실패로 취급하지 않는다.
 
 ## Phase 2 Plan Review Extension
 Target: 선행 dependency인 VPC의 code/state/AWS 비교.
@@ -295,7 +295,7 @@ Status: WARNING. 사용자 제공 원격 저장소는 오래된 상태이므로 
 | --- | --- | --- | --- |
 | `tofu fmt -check -recursive terraform` | PASS | exit 0 | 형식 검사 |
 | `terragrunt hcl validate --working-dir live --no-color` | PASS | exit 0 | Terragrunt HCL 검사, full dependency plan 아님 |
-| `aws sts get-caller-identity --profile dev ...` | PASS | account 123456789012, SSO <SSO_USER> | 사용자 지정 profile과 코드 계정 일치 |
+| `aws sts get-caller-identity --profile dev ...` | PASS | account <AWS_ACCOUNT_ID>, SSO <SSO_USER> | 사용자 지정 profile과 코드 계정 일치 |
 | 기본 profile identity | 미설정 | NoCredentials | dev 지정으로 해결 |
 | sandbox network init/identity | 실패 후 복구 | DNS/endpoint 연결 실패 | 승인된 네트워크 재시도로 성공 |
 | 임시 사본 `init -backend=false -lockfile=readonly`, `validate` | PASS | 10/10 configuration valid | AWS resource mutation 없이 provider schema 확인 |

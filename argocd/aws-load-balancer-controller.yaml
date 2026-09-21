@@ -18,7 +18,7 @@ spec:
           create: true
           name: aws-load-balancer-controller
           annotations:
-            eks.amazonaws.com/role-arn: arn:aws:iam::123456789012:role/dev-eks-aws-load-balancer-controller
+            eks.amazonaws.com/role-arn: arn:aws:iam::${AWS_ACCOUNT_ID}:role/dev-eks-aws-load-balancer-controller
         resources:
           requests:
             cpu: 100m

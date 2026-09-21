@@ -29,9 +29,9 @@ First complete the [State ownership preflight and migration review](iac-maintena
 5. Plan/apply `live/dev/ecr`, build `backend/Dockerfile` from the repository root, scan it, and push immutable tag `v0.1.0`.
 6. Review `live/shared/github-oidc` first, then `live/dev/github-actions-ecr`. The shared unit owns the account GitHub OIDC provider; the application unit consumes its ARN. If an existing provider is managed elsewhere, resolve its ownership under the migration runbook before any import or creation.
 7. Plan/apply `live/dev/alb-controller` to create the controller IRSA role.
-8. Install Argo CD, then apply `argocd/aws-load-balancer-controller.yaml`. Wait until its Deployment is Available.
+8. Install Argo CD, then render and apply `argocd/aws-load-balancer-controller.yaml` with `python3 scripts/render_aws_account_template.py argocd/aws-load-balancer-controller.yaml | kubectl apply -f -`. Wait until its Deployment is Available.
 9. Plan/apply `live/dev/rds` for private PostgreSQL, the database security group and `dev/pms/database` Secret, then `live/dev/eks-database-access` for the EKS-only ingress rule. The DB unit no longer depends on the cluster. Review monthly RDS cost and deletion protection before approval.
-10. Plan/apply `live/dev/external-secrets`, then apply `argocd/external-secrets.yaml`. Wait for the controller and its CRDs to become ready.
+10. Plan/apply `live/dev/external-secrets`, then render and apply `argocd/external-secrets.yaml` with `python3 scripts/render_aws_account_template.py argocd/external-secrets.yaml | kubectl apply -f -`. Wait for the controller and its CRDs to become ready.
 11. Create the `pms-auth` Secret through an approved secret-management path. `kubernetes/app/secret.example.yaml` documents the required keys and must not be applied with placeholder values.
 12. Plan/apply `live/dev/pms-storage` and `live/dev/pms-irsa`, then verify the ServiceAccount role ARN. The separate `live/dev/irsa` test unit is optional for application activation. Resolve the recorded deleted-bucket drift and data recovery intent before recreating storage.
 13. Apply `argocd/web-app-dev.yaml` and verify `ClusterSecretStore`, `ExternalSecret`, generated `pms-database` Secret, Ingress, target health, and Pod logs.

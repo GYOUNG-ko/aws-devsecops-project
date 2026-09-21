@@ -20,3 +20,6 @@ __pycache__/
 *.tfstate.*
 *.tfplan
 crash.log
+# Generated external-share archives
+external-share-*/*.zip
+external-share-*/*.zip.sha256
